@@ -169,9 +169,8 @@ for type_i = 1 : length(trial_types)
     median_motion_fr_pupil        = [];
     p_val_pupil                   = [];
     direction_pupil               = [];
-    p_val_orig_vs_removed         = [];
-    direction_orig_vs_removed     = [];
-    
+
+ 
     if type_i > 2
         median_stationary_fr_ME    = [];
         median_motion_fr_ME        = [];
@@ -207,7 +206,6 @@ for type_i = 1 : length(trial_types)
                 [~, ~, p_val_ME(end+1), direction_ME(end+1)] = compare_groups_with_signrank(stat_ME, mot_ME);
             end
             
-            [~, ~, p_val_orig_vs_removed(end+1), direction_orig_vs_removed(end+1)] = compare_groups_with_signrank(mot, mot_pupil);
         end
         
         
@@ -276,25 +274,125 @@ for type_i = 1 : length(trial_types)
     end
     
     
-    
-    figure(4);
-    h_ax = subplot(2, 2, type_i);
-    
-    hold on;
-    
-    fmt.xy_limits       = [0, 60];
-    fmt.tick_space      = 20;
-    fmt.line_order      = 'top';
-    fmt.xlabel          = sprintf('%s, original', type_str);
-    fmt.ylabel          = sprintf('%s, removed', type_str);
-    fmt.include_inset   = false;
-    fmt.colour_by       = 'significance';
-
-    unity_plot_plot(h_ax, median_motion_fr, median_motion_fr_pupil, direction_orig_vs_removed, fmt);
-    
-    title(sprintf('%s, saccades removed vs original', type_str), 'interpreter', 'none');
-    
 end
+
+
+%%
+
+
+median_motion_fr_VT = [];
+median_motion_fr_V = [];
+direction = [];
+
+median_motion_fr_VT_pupil = [];
+median_motion_fr_V_pupil = [];
+direction_pupil = [];
+
+median_motion_fr_VT_ME = [];
+median_motion_fr_V_ME = [];
+direction_ME = [];
+
+
+for probe_i = 1 : length(probe_ids)
+        
+        for clust_i = 1 : size(stationary_fr_store{probe_i}{type_i}, 2)
+            
+
+            % first plot, original
+            mot_VT = motion_fr_store{probe_i}{3}(:, clust_i);
+            mot_V = motion_fr_store{probe_i}{4}(:, clust_i);
+
+            median_motion_fr_VT(end+1) = median(mot_VT);
+            median_motion_fr_V(end+1) = median(mot_V);
+
+            [~, ~, ~, direction(end+1)] = compare_groups_with_signrank(mot_V, mot_VT);
+
+
+            % first plot, saccade removal
+            mot_VT_pupil = motion_fr_store_pupil{probe_i}{3}(:, clust_i);
+            mot_V_pupil = motion_fr_store_pupil{probe_i}{4}(:, clust_i);
+
+            median_motion_fr_VT_pupil(end+1) = median(mot_VT_pupil);
+            median_motion_fr_V_pupil(end+1) = median(mot_V_pupil);
+
+            [~, ~, ~, direction_pupil(end+1)] = compare_groups_with_signrank(mot_V_pupil, mot_VT_pupil);
+
+
+            % first plot, saccade removal
+            mot_VT_ME = motion_fr_store_ME{probe_i}{3}(:, clust_i);
+            mot_V_ME = motion_fr_store_ME{probe_i}{4}(:, clust_i);
+
+            median_motion_fr_VT_ME(end+1) = median(mot_VT_ME);
+            median_motion_fr_V_ME(end+1) = median(mot_V_ME);
+
+            [~, ~, ~, direction_ME(end+1)] = compare_groups_with_signrank(mot_V_ME, mot_VT_ME);
+
+        end
+end
+
+
+
+
+figure(4);
+h_ax = subplot(1, 3, 1);
+hold on;
+
+fmt.xy_limits       = [0, 60];
+fmt.tick_space      = 20;
+fmt.line_order      = 'top';
+fmt.xlabel          = trial_types{4};
+fmt.ylabel          = trial_types{3};
+fmt.include_inset   = false;
+fmt.colour_by       = 'significance';
+
+unity_plot_plot(h_ax, median_motion_fr_V, median_motion_fr_VT, direction, fmt);
+
+title('Original');
+
+
+h_ax = subplot(1, 3, 2);
+hold on;
+
+fmt.xy_limits       = [0, 60];
+fmt.tick_space      = 20;
+fmt.line_order      = 'top';
+fmt.xlabel          = trial_types{4};
+fmt.ylabel          = trial_types{3};
+fmt.include_inset   = false;
+fmt.colour_by       = 'significance';
+
+unity_plot_plot(h_ax, median_motion_fr_V_pupil, median_motion_fr_VT_pupil, direction_pupil, fmt);
+
+title('No saccades');
+
+
+h_ax = subplot(1, 3, 3);
+hold on;
+
+fmt.xy_limits       = [0, 60];
+fmt.tick_space      = 20;
+fmt.line_order      = 'top';
+fmt.xlabel          = trial_types{4};
+fmt.ylabel          = trial_types{3};
+fmt.include_inset   = false;
+fmt.colour_by       = 'significance';
+
+unity_plot_plot(h_ax, median_motion_fr_V_ME, median_motion_fr_VT_ME, direction_ME, fmt);
+
+title('No motion energy');
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         
