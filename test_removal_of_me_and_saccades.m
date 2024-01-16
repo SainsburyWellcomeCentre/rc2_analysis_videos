@@ -169,6 +169,8 @@ for type_i = 1 : length(trial_types)
     median_motion_fr_pupil        = [];
     p_val_pupil                   = [];
     direction_pupil               = [];
+    p_val_orig_vs_removed         = [];
+    direction_orig_vs_removed     = [];
     
     if type_i > 2
         median_stationary_fr_ME    = [];
@@ -204,6 +206,8 @@ for type_i = 1 : length(trial_types)
                 median_motion_fr_ME(end+1) = median(mot_ME);
                 [~, ~, p_val_ME(end+1), direction_ME(end+1)] = compare_groups_with_signrank(stat_ME, mot_ME);
             end
+            
+            [~, ~, p_val_orig_vs_removed(end+1), direction_orig_vs_removed(end+1)] = compare_groups_with_signrank(mot, mot_pupil);
         end
         
         
@@ -250,6 +254,7 @@ for type_i = 1 : length(trial_types)
     title(sprintf('%s, saccades removed', type_str), 'interpreter', 'none');
     
     
+    
     if type_i > 2
         
         figure(3);
@@ -269,6 +274,25 @@ for type_i = 1 : length(trial_types)
         
         title(sprintf('%s, motion energy periods removed', type_str), 'interpreter', 'none');
     end
+    
+    
+    
+    figure(4);
+    h_ax = subplot(2, 2, type_i);
+    
+    hold on;
+    
+    fmt.xy_limits       = [0, 60];
+    fmt.tick_space      = 20;
+    fmt.line_order      = 'top';
+    fmt.xlabel          = sprintf('%s, original', type_str);
+    fmt.ylabel          = sprintf('%s, removed', type_str);
+    fmt.include_inset   = false;
+    fmt.colour_by       = 'significance';
+
+    unity_plot_plot(h_ax, median_motion_fr, median_motion_fr_pupil, direction_orig_vs_removed, fmt);
+    
+    title(sprintf('%s, saccades removed vs original', type_str), 'interpreter', 'none');
     
 end
 
