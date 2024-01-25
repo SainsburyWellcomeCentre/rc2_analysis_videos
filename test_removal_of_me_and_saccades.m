@@ -5,6 +5,7 @@
 experiment_groups           = 'visual_flow';
 trial_types                 = {'RVT', 'RV', {'VT_RVT', 'VT_RV'}, {'V_RVT', 'V_RV'}};
 duration_to_remove          = 0.25;     % duration after saccade to remove
+motion_threshold_percentile = 0.5;
 
 ctl                         = RC2Analysis();
 probe_ids                   = ctl.get_probe_ids(experiment_groups);
@@ -107,9 +108,9 @@ for probe_i = 1 : length(probe_ids)
                 % camera motion in original trial
                 original_motion_energy      = original_trial.camera1;
                 
-                % select the motion periods and get the lowest 5th prctile
+                % select the motion periods and get the lowest x-th prctile
                 cam_motion_original         = original_motion_energy(original_motion_mask);
-                motion_threshold            = prctile(cam_motion_original, 5);
+                motion_threshold            = prctile(cam_motion_original, motion_threshold_percentile);
                 
                 % camera motion in replay trial, aligned
                 replay_motion_energy        = trial.camera1;
