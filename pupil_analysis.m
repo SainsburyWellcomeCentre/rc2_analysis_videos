@@ -1,6 +1,22 @@
+% How is this analysis done?
+% 1. Get the distribution of pupil diameter for all VT trials in stationary
+% and motion period (separated)
+% 2. calculate the pupil diameter threshold which retains a percentile of
+% stationary period data
+% 3. on a trial by trial basis, calculate a pupil mask such that the pupil
+% diameter is lower than the above threshold. 
+% 4. we combine the pupil diameter mask with the motion mask (double mask) and we keep
+% data under these two.
+% 5. we apply the double mask to the V traces
+% 6. we compare the firing rates with the same double mask (mean across
+% trial per cluser, median over trials per cluster) 
+
+
+
+
+
 experiment_groups           = 'visual_flow';
 trial_types                 = {{'VT_RVT', 'VT_RV'}, {'V_RVT', 'V_RV'}};
-duration_to_remove          = 0.25;   
 percentile = 70;
 
 ctl                         = RC2Analysis();
@@ -19,7 +35,7 @@ for probe_i = 1 : length(probe_ids)
     % analyse VT
     type_i = 1; 
     
-    % Get the distribution of facial ME in stationary and motion periods
+    % Get the distribution of pupil diameter in stationary and motion periods
     trials = data.get_trials_with_trial_group_label(trial_types{type_i});
     pupil_diameter_motion_all = zeros(length(trials), 200000);
     pupil_diameter_motion_all_stationary = zeros(length(trials), 200000);
@@ -36,7 +52,8 @@ for probe_i = 1 : length(probe_ids)
 
         pupil_diameter_motion_all(trial_i, 1:length(pupil_diameter_masked)) = pupil_diameter_masked;
         pupil_diameter_motion_all_stationary(trial_i, 1:length(pupil_diameter_masked_stationary)) = pupil_diameter_masked_stationary;
-% 
+
+        %     distribution per trial plot
 %             figure(trial_i);
 %             hold on;
 %             histogram(cam_motion_original_stationary);
@@ -49,25 +66,19 @@ for probe_i = 1 : length(probe_ids)
     small_diameter_threshold  = prctile(pupil_diameter_motion_all_stationary(:), percentile);
 
 
-    figure(type_i);
+    figure(probe_i);
     hold on;
-    h = histogram(pupil_diameter_motion_all(:), 200);
+    h = histogram(pupil_diameter_motion_all(:), 50);
     hold on;
-    g = histogram(pupil_diameter_motion_all_stationary(:), 200);
+    g = histogram(pupil_diameter_motion_all_stationary(:), 50);
     xline(small_diameter_threshold)
     
-%     motion_distribution = h.Values;
-%     stationary_distribution = g.Values;
-%     
-%     motion_poisson_fit = poissfit(motion_distribution);
-%     stationary_poisson_fit = poissfit(stationary_distribution);
-
-    
-    % Calculate windows in which facial ME is low and the animal is running
-    % Get the mean firing rate
     % Save the windows in a variables to be reused to analyse V
     windows_pd = zeros(length(trials), 350000);
     mean_spikes_VT = zeros(length(trials), length(clusters));
+    
+    total_pupil_diameter_mask_len = 0;
+    total_double_mask_len = 0;
     for trial_i = 1 : length(trials)
         trial  = trials{trial_i}.to_aligned;
         original_trial              = trial.original_trial;
@@ -76,15 +87,28 @@ for probe_i = 1 : length(probe_ids)
 
         pupil_diameter      = trial.pupil_diameter;
         pd_mask = pupil_diameter < small_diameter_threshold;
+        
         pd_doubled_masking = pd_mask & original_motion_mask(1:length(pd_mask));
+        motion_mask = original_motion_mask(1:length(pd_mask));
         windows_pd(trial_i, 1:length(pd_mask)) = pd_doubled_masking;
-
-%         figure(trial_i + 1);
+        
+%         sprintf('Total data length: %f; retained: %f; discarted: %f', ...
+%                                     length(pupil_diameter(motion_mask)), ...
+%                                     length(pupil_diameter(pd_doubled_masking)) / length(pupil_diameter(motion_mask)), ...
+%                                     1 - length(pupil_diameter(pd_doubled_masking)) / length(pupil_diameter(motion_mask))) 
+                                
+        total_pupil_diameter_mask_len = total_pupil_diameter_mask_len + length(pupil_diameter(motion_mask));
+        total_double_mask_len = total_double_mask_len + length(pupil_diameter(pd_doubled_masking));
+        
+        % To see masks for each trial, uncomment this section                    
+%         figure(trial_i);
 %         hold on;
-%         plot(pupil_diameter);
-%         plot(pd_mask * 1.5);
-%         plot(original_motion_mask * 2);
-%         plot(pd_doubled_masking);
+%         plot(pupil_diameter/70, 'g');
+%         plot(pd_mask * 1, 'k');
+%         plot(original_motion_mask * 2, 'r');
+%         plot(pd_doubled_masking, 'y');
+%         plot(original_trial.stationary_mask * 2, 'b')
+
 
         for clust_i = 1 : length(clusters)     
             fr = clusters(clust_i).fr.get_convolution(trial.probe_t);
@@ -93,6 +117,10 @@ for probe_i = 1 : length(probe_ids)
     end
     
     
+    sprintf('Probe %s; percentage of data retained with the pupil masking: %f; threshold: %f', ...
+        probe_ids{probe_i}, total_double_mask_len / total_pupil_diameter_mask_len, small_diameter_threshold)
+    
+    % =====================================================================
     % Analyse V
     type_i = 2; 
     trials = data.get_trials_with_trial_group_label(trial_types{type_i});
@@ -114,14 +142,14 @@ for probe_i = 1 : length(probe_ids)
     end
 end
 
-figure(1);
+figure(5);
 h_ax = subplot(1, 1, 1);
 hold on;
 fmt.xy_limits       = [0, 60];
 fmt.tick_space      = 20;
 fmt.line_order      = 'top';
 fmt.xlabel          = trial_types{2};
-fmt.ylabel          = trial_types{2};
+fmt.ylabel          = trial_types{1};
 fmt.include_inset   = false;
 fmt.colour_by       = 'significance';
 
