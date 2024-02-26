@@ -2,10 +2,34 @@
 % periods (for repeat trials) and with removal of periods just after
 % movements of the pupil.
 
+
+% How is this analysis done?
+%
+% BODY MOTION ENERGY
+% 1. For each VT and V trial, the distribution of motion energy during
+% running in the original trial (i.e. the trial from which the replay comes from) 
+% is calculated. We store a threshold motion value corresponding to
+% a given percentile.
+% 2. This treshold is applied to the body motion energy of this trial in
+% the stationary and motion periods. Only time bins in which the ME was
+% under the threshold are taken.
+% 3. From this subset of time bins, the fr is extracted and the mean value
+% across the trial is collected for every cluster. Then the median is
+% calculated across trials. 
+%
+% SACCADES REMOVAL
+% 1. for each session, the precomputed saccades frame table is loaded.
+% 2. for each trial, the time bins in which the saccades happen are removed
+% in a time window defined as duration_to_remove. In this way a mask is
+% generated.
+% 3. these mask is then applied to the fr, then the mean through a trial and
+% median across trials is calculated for each cluster.
+
+
 experiment_groups           = 'visual_flow';
 trial_types                 = {'RVT', 'RV', {'VT_RVT', 'VT_RV'}, {'V_RVT', 'V_RV'}};
 duration_to_remove          = 0.25;     % duration after saccade to remove
-motion_threshold_percentile = 0.5;
+motion_threshold_percentile = 5;
 
 ctl                         = RC2Analysis();
 probe_ids                   = ctl.get_probe_ids(experiment_groups);
@@ -56,6 +80,7 @@ for probe_i = 1 : length(probe_ids)
     stationary_time_ME{probe_i} = cell(1, length(trial_types));
     motion_time_ME{probe_i} = cell(1, length(trial_types));
     
+   
     for type_i = 1 : length(trial_types)
         
         trials = data.get_trials_with_trial_group_label(trial_types{type_i});
@@ -77,6 +102,8 @@ for probe_i = 1 : length(probe_ids)
         
         stationary_time_ME{probe_i}{type_i} = nan(length(trials), length(clusters));
         motion_time_ME{probe_i}{type_i} = nan(length(trials), length(clusters));
+        
+        
         
         for trial_i = 1 : length(trials)
             
@@ -130,6 +157,16 @@ for probe_i = 1 : length(probe_ids)
                 motion_mask_ME          = motion_mask & (replay_motion_energy < motion_threshold);
                 stationary_time_ME{probe_i}{type_i}(trial_i) = sum(stationary_mask_ME)/10e3;
                 motion_time_ME{probe_i}{type_i}(trial_i) = sum(motion_mask_ME)/10e3;
+%                 
+%                 figure(trial_i);
+%                 hold on;
+%                 plot(original_motion_mask, 'r');
+%                 plot(original_stationary_mask, 'b');
+%                 plot(stationary_mask_ME * 1.2, 'y');
+%                 plot(motion_mask_ME * 1.2, 'g');
+%                 plot(replay_motion_energy, 'k');
+%                 yline(motion_threshold);
+%                 
             end
             
             stationary_time{probe_i}{type_i}(trial_i) = sum(stationary_mask)/10e3;
@@ -155,6 +192,42 @@ for probe_i = 1 : length(probe_ids)
             end
         end
     end
+    
+    total_stationary_time = 0;
+    total_motion_time = 0;
+    
+    total_stationary_saccade_time = 0;
+    total_motion_saccade_time = 0;
+    
+    for type_i = 1 : length(trial_types)
+        % sum all the the times of the trials together across types
+        total_stationary_time = total_stationary_time + sum(stationary_time{probe_i}{type_i});
+        total_motion_time = total_motion_time + sum(motion_time{probe_i}{type_i}(:, 1));
+        
+        total_stationary_saccade_time = total_stationary_saccade_time + sum(stationary_time_pupil{probe_i}{type_i}(:, 1));
+        total_motion_saccade_time = total_motion_saccade_time + sum(motion_time_pupil{probe_i}{type_i}(:, 1));
+    end
+    
+    sprintf('Probe: %s.\nData retained after saccades removal: %f (stationary), %f (motion).', ...
+        probe_ids{probe_i}, ...
+        total_stationary_saccade_time / total_stationary_time, ...
+        total_motion_saccade_time / total_motion_time)
+    
+    total_stationary_time = 0;
+    total_motion_time = 0;
+    total_stationary_ME_time = 0;
+    total_motion_ME_time = 0;
+    for type_i = 3 : length(trial_types)
+        % only for VT and V
+        total_stationary_time = total_stationary_time + sum(stationary_time{probe_i}{type_i});
+        total_motion_time = total_motion_time + sum(motion_time{probe_i}{type_i}(:, 1));
+        
+        total_stationary_ME_time = total_stationary_ME_time + sum(stationary_time_ME{probe_i}{type_i}(:, 1));
+        total_motion_ME_time = total_motion_ME_time + sum(motion_time_ME{probe_i}{type_i}(:, 1));
+    end
+    sprintf('\nData retained after body ME removal: %f (stationary), %f (motion).', ...
+        total_stationary_ME_time  /  total_stationary_time, ...
+        total_motion_ME_time / total_motion_time)
 end
 
 
