@@ -1,7 +1,7 @@
 experiment_groups           = 'visual_flow';
 trial_types                 = {{'VT_RVT', 'VT_RV'}, {'V_RVT', 'V_RV'}};
 duration_to_remove          = 0.25;   
-motion_threshold_percentile = 5;
+motion_threshold_percentile = 80; % for stationary distribution
 
 ctl                         = RC2Analysis();
 probe_ids                   = ctl.get_probe_ids(experiment_groups);
@@ -46,21 +46,25 @@ for probe_i = 1 : length(probe_ids)
     % Set the threshold
     facial_me_motion_all(facial_me_motion_all==0) = NaN;
     facial_me_motion_all_stationary(facial_me_motion_all_stationary==0) = NaN;
-    no_facial_movements_threshold  = prctile(facial_me_motion_all(:), motion_threshold_percentile);
+    no_facial_movements_threshold  = prctile(facial_me_motion_all_stationary(:), motion_threshold_percentile);
+    % no_facial_movements_threshold  = prctile(facial_me_motion_all(:), motion_threshold_percentile);
 
 
-%         figure(type_i);
-%         hold on;
-%         histogram(facial_me_motion_all(:));
-%         hold on;
-%         histogram(facial_me_motion_all_stationary(:))
-%         xline(no_facial_movements_threshold)
+    figure(probe_i);
+    hold on;
+    histogram(facial_me_motion_all(:), 50);
+    hold on;
+    histogram(facial_me_motion_all_stationary(:), 50)
+    xline(no_facial_movements_threshold)
     
     % Calculate windows in which facial ME is low and the animal is running
     % Get the mean firing rate
     % Save the windows in a variables to be reused to analyse V
     windows_fme = zeros(length(trials), 350000);
     mean_spikes_VT = zeros(length(trials), length(clusters));
+    
+    total_motion_mask_len = 0;
+    total_double_mask_len = 0;
     for trial_i = 1 : length(trials)
         trial  = trials{trial_i}.to_aligned;
         original_trial              = trial.original_trial;
@@ -71,6 +75,9 @@ for probe_i = 1 : length(probe_ids)
         f_me_mask = face_motion_energy < no_facial_movements_threshold;
         f_me_doubled_masking = f_me_mask & original_motion_mask(1:length(f_me_mask));
         windows_fme(trial_i, 1:length(f_me_mask)) = f_me_doubled_masking;
+        
+        total_motion_mask_len = total_motion_mask_len + length(face_motion_energy(original_motion_mask));
+        total_double_mask_len = total_double_mask_len + length(face_motion_energy(f_me_doubled_masking));
 
 %         figure(trial_i + 1);
 %         hold on;
@@ -84,6 +91,9 @@ for probe_i = 1 : length(probe_ids)
             mean_spikes_VT(trial_i, clust_i) = mean(fr(f_me_doubled_masking));
         end
     end
+    
+    sprintf('Probe %s; percentage of data retained for f_me: %f; threshold: %f', ...
+        probe_ids{probe_i}, total_double_mask_len / total_motion_mask_len, no_facial_movements_threshold)
     
     
     % Analyse V
@@ -107,14 +117,14 @@ for probe_i = 1 : length(probe_ids)
     end
 end
 
-figure(1);
+figure(5);
 h_ax = subplot(1, 1, 1);
 hold on;
 fmt.xy_limits       = [0, 60];
 fmt.tick_space      = 20;
 fmt.line_order      = 'top';
 fmt.xlabel          = trial_types{2};
-fmt.ylabel          = trial_types{2};
+fmt.ylabel          = trial_types{1};
 fmt.include_inset   = false;
 fmt.colour_by       = 'significance';
 
