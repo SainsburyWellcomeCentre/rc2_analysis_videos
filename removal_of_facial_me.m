@@ -92,8 +92,12 @@ for probe_i = 1 : length(probe_ids)
         end
     end
     
-    sprintf('Probe %s; percentage of data retained for f_me: %f; threshold: %f', ...
-        probe_ids{probe_i}, total_double_mask_len / total_motion_mask_len, no_facial_movements_threshold)
+    total_double_mask_time = total_double_mask_len / 10e3;
+    total_motion_mask_time = total_motion_mask_len / 10e3;
+    
+    sprintf('Probe %s; time retained with two masks: %f, total time: %f, threshold: %f', ...
+        probe_ids{probe_i}, total_double_mask_time, total_motion_mask_time, no_facial_movements_threshold)
+
     
     
     % Analyse V
