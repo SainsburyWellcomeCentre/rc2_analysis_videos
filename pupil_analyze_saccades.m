@@ -8,7 +8,7 @@ session_ids = {'CAA-1110262_rec1_001', ...
 ctl = RC2Analysis();
 
 camera_fs           = 60;
-frames_around_event = (-60:60) ;
+frames_around_event = (-30:30) ;
 baseline_frames     = -5:1;
 
 for ii = 1 : length(session_ids)
