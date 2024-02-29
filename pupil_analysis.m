@@ -77,7 +77,7 @@ for probe_i = 1 : length(probe_ids)
     windows_pd = zeros(length(trials), 350000);
     mean_spikes_VT = zeros(length(trials), length(clusters));
     
-    total_pupil_diameter_mask_len = 0;
+    total_motion_mask_len = 0;
     total_double_mask_len = 0;
     for trial_i = 1 : length(trials)
         trial  = trials{trial_i}.to_aligned;
@@ -91,13 +91,8 @@ for probe_i = 1 : length(probe_ids)
         pd_doubled_masking = pd_mask & original_motion_mask(1:length(pd_mask));
         motion_mask = original_motion_mask(1:length(pd_mask));
         windows_pd(trial_i, 1:length(pd_mask)) = pd_doubled_masking;
-        
-%         sprintf('Total data length: %f; retained: %f; discarted: %f', ...
-%                                     length(pupil_diameter(motion_mask)), ...
-%                                     length(pupil_diameter(pd_doubled_masking)) / length(pupil_diameter(motion_mask)), ...
-%                                     1 - length(pupil_diameter(pd_doubled_masking)) / length(pupil_diameter(motion_mask))) 
-                                
-        total_pupil_diameter_mask_len = total_pupil_diameter_mask_len + length(pupil_diameter(motion_mask));
+                              
+        total_motion_mask_len = total_motion_mask_len + sum(motion_mask(:) == 1);
         total_double_mask_len = total_double_mask_len + length(pupil_diameter(pd_doubled_masking));
         
         % To see masks for each trial, uncomment this section                    
@@ -116,9 +111,11 @@ for probe_i = 1 : length(probe_ids)
         end
     end
     
+    total_double_mask_time = total_double_mask_len / 10e3;
+    total_motion_mask_time = total_motion_mask_len / 10e3;
     
-    sprintf('Probe %s; percentage of data retained with the pupil masking: %f; threshold: %f', ...
-        probe_ids{probe_i}, total_double_mask_len / total_pupil_diameter_mask_len, small_diameter_threshold)
+    sprintf('Probe %s; time retained with two masks: %f, total time: %f, threshold: %f', ...
+        probe_ids{probe_i}, total_double_mask_time, total_motion_mask_time, small_diameter_threshold)
     
     % =====================================================================
     % Analyse V
