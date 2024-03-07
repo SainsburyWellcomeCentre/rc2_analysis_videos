@@ -4,8 +4,9 @@ experiment_groups           = 'visual_flow';
 trial_types                 = {{'VT_RVT', 'VT_RV'}, {'V_RVT', 'V_RV'}};
 
 % Thresholds for unity plot, make masks on VF + T
-low_percentile = 10;
-hig_percentile = 90;
+% low_percentile = 10;
+% hig_percentile = 90;
+custom_thresholds = [41.9419 61.4615 73.6737 57.5576];
 
 % Thresholds for the "bins plot"
 bin_num = 4;
@@ -38,13 +39,13 @@ for probe_i = 1 : length(probe_ids)
         trials = data.get_trials_with_trial_group_label(trial_types{type_i});
         
         for trial_i = 1 : length(trials)
-            trial  = trials{trial_i}.to_aligned;
+            trial                       = trials{trial_i}.to_aligned;
             original_trial              = trial.original_trial;
-
+            
             original_motion_mask        = original_trial.motion_mask;
 
-            pupil_diameter      = trial.pupil_diameter;
-            pupil_diameter_masked  = pupil_diameter(original_motion_mask);
+            pupil_diameter              = trial.pupil_diameter;
+            pupil_diameter_masked       = pupil_diameter(original_motion_mask);
 
             pupil_diameter_motion_all(type_i, trial_i, 1:length(pupil_diameter_masked)) = pupil_diameter_masked;
         end
@@ -52,8 +53,9 @@ for probe_i = 1 : length(probe_ids)
     
     % Set the threshold
     pupil_diameter_motion_all(pupil_diameter_motion_all==0) = NaN;
-    lower_threshold  = prctile(pupil_diameter_motion_all(2, :), low_percentile);
-    high_threshold  = prctile(pupil_diameter_motion_all(2, :), hig_percentile);
+%     lower_threshold  = prctile(pupil_diameter_motion_all(2, :), low_percentile);
+%     high_threshold  = prctile(pupil_diameter_motion_all(2, :), hig_percentile);
+    mask_threshold = custom_thresholds(probe_i);
     
     % four parts thresholds for plotting
     thresholds = zeros(length(trial_types), bin_num);
@@ -62,20 +64,19 @@ for probe_i = 1 : length(probe_ids)
             thresholds(type_i, bin) = prctile(pupil_diameter_motion_all(type_i, :), bin_size * bin);
         end
     end
-
-% 
-%     figure(probe_i);
-%     hold on;
-%     title(probe_ids(probe_i));
-%     subplot(1, 2, 1);
-%     histogram(pupil_diameter_motion_all(1, :), 50);
-%     hold on;
-%     histogram(pupil_diameter_motion_all(2, :), 50);
-%     xlabel('Pupil diameter (pixel)');
-%     ylabel('Counts');
-%     xline(lower_threshold)
-%     xline(high_threshold)
-%     
+    
+    edges = linspace(0, 100, 1000);
+    figure(probe_i);
+    hold on;
+    title(probe_ids(probe_i));
+    subplot(1, 2, 1);
+    histogram(pupil_diameter_motion_all(1, :), edges);
+    hold on;
+    histogram(pupil_diameter_motion_all(2, :), edges);
+    xlabel('Pupil diameter (pixel)');
+    ylabel('Counts');
+    xline(mask_threshold)
+     
     mean_spikes = zeros(length(trial_types), length(trials), length(clusters));
 	mean_spikes_no_mask = zeros(length(trial_types), length(trials), length(clusters));
 
@@ -93,7 +94,8 @@ for probe_i = 1 : length(probe_ids)
             original_trial              = trial.original_trial;
             original_motion_mask        = original_trial.motion_mask;
             pupil_diameter              = trial.pupil_diameter;
-            pd_mask = (pupil_diameter < high_threshold) & (pupil_diameter > lower_threshold);
+%             pd_mask = (pupil_diameter < high_threshold) & (pupil_diameter > lower_threshold);
+            pd_mask = pupil_diameter < mask_threshold;
             
             if type_i == 1
                 % calcumate motion + range pupil in VF + T and use it in VF
@@ -215,7 +217,7 @@ avg_mi_no_mask = nanmean(modulation_index_no_mask(only_responsive_no_mask))
 std_mi_no_mask = nanstd(modulation_index_no_mask(only_responsive_no_mask))
 avg_mi  = nanmean(modulation_index(only_responsive_no_mask))
 std_mi  = nanstd(modulation_index(only_responsive_no_mask))
-[p] = ranksum(modulation_index_no_mask(only_responsive_no_mask), modulation_index(only_responsive_no_mask))
+[p] = signrank(modulation_index_no_mask(only_responsive_no_mask), modulation_index(only_responsive_no_mask))
 
 
 [p_VT,tbl_VT,stats_VT] = anova1(VT_fr_per_bin);
