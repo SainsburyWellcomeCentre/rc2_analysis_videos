@@ -4,7 +4,7 @@ experiment_groups           = 'visual_flow';
 trial_types                 = {{'VT_RVT', 'VT_RV'}, {'V_RVT', 'V_RV'}};
 
 % Thresholds for unity plot, make masks on VF + T
-custom_thresholds = [ 1.03 1.59 0.86 0.94];
+custom_thresholds = [1.0450 1.5855 0.8648 0.9369];
 
 % Thresholds for the "bins plot"
 bin_num = 20;
@@ -42,8 +42,8 @@ for probe_i = 1 : length(probe_ids)
 
             original_motion_mask        = original_trial.motion_mask;
 
-            face_motion_energy      = trial.camera0;
-            face_motion_energy_masked  = face_motion_energy(original_motion_mask);
+            face_motion_energy          = trial.camera0;
+            face_motion_energy_masked   = face_motion_energy(original_motion_mask);
 
             facial_ME_motion_all(type_i, trial_i, 1:length(face_motion_energy_masked)) = face_motion_energy_masked;
         end
@@ -61,17 +61,17 @@ for probe_i = 1 : length(probe_ids)
         end
     end
 
-%     edges = linspace(0,12,1000);
-%     figure(probe_i);
-%     hold on;
-%     title(probe_ids(probe_i));
-%     subplot(1, 2, 1);
-%     histogram(facial_ME_motion_all(1, :), edges);
-%     hold on;
-%     histogram(facial_ME_motion_all(2, :), edges);
-%     xlabel('Pupil diameter (pixel)');
-%     ylabel('Counts');
-%     xline(mask_threshold)
+    edges = linspace(0,12,1000);
+    figure(probe_i);
+    hold on;
+    title(probe_ids(probe_i));
+    subplot(1, 2, 1);
+    histogram(facial_ME_motion_all(1, :), edges);
+    hold on;
+    histogram(facial_ME_motion_all(2, :), edges);
+    xlabel('Pupil diameter (pixel)');
+    ylabel('Counts');
+    xline(mask_threshold)
     
     mean_spikes = zeros(length(trial_types), length(trials), length(clusters));
     mean_spikes_no_mask = zeros(length(trial_types), length(trials), length(clusters));
@@ -211,7 +211,7 @@ avg_mi_no_mask = mean(modulation_index_no_mask(only_responsive_no_mask))
 std_mi_no_mask = std(modulation_index_no_mask(only_responsive_no_mask))
 avg_mi  = mean(modulation_index(only_responsive_no_mask))
 std_mi  = std(modulation_index(only_responsive_no_mask))
-[p] = ranksum(modulation_index_no_mask(only_responsive_no_mask), modulation_index(only_responsive_no_mask))
+[p] = signrank(modulation_index_no_mask(only_responsive_no_mask), modulation_index(only_responsive_no_mask))
 
 [p_VT,tbl_VT,stats_VT] = anova1(VT_fr_per_bin);
 [p_V,tbl_V,stats_V] = anova1(V_fr_per_bin);
