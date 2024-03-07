@@ -25,6 +25,7 @@
 % 3. these mask is then applied to the fr, then the mean through a trial and
 % median across trials is calculated for each cluster.
 
+close all;
 
 experiment_groups           = 'visual_flow';
 trial_types                 = {'RVT', 'RV', {'VT_RVT', 'VT_RV'}, {'V_RVT', 'V_RV'}};
@@ -355,7 +356,6 @@ end
 
 %%
 
-
 median_motion_fr_VT = [];
 median_motion_fr_V = [];
 direction = [];
@@ -367,7 +367,6 @@ direction_pupil = [];
 median_motion_fr_VT_ME = [];
 median_motion_fr_V_ME = [];
 direction_ME = [];
-
 
 for probe_i = 1 : length(probe_ids)
         
@@ -405,8 +404,6 @@ for probe_i = 1 : length(probe_ids)
 
         end
 end
-
-
 
 
 figure(4);
@@ -456,6 +453,92 @@ fmt.colour_by       = 'significance';
 unity_plot_plot(h_ax, median_motion_fr_V_ME, median_motion_fr_VT_ME, direction_ME, fmt);
 
 title('No motion energy');
+
+
+figure(5);
+
+hold on;
+modulation_index_no_saccades = [];
+modulation_index_all_data = [];
+
+for clust_i = 1 : 39
+    modulation_index_no_saccades(end+1) = (median_motion_fr_VT_pupil(clust_i) - median_motion_fr_V_pupil(clust_i))...
+        / (median_motion_fr_VT_pupil(clust_i) + median_motion_fr_V_pupil(clust_i));
+    
+    modulation_index_all_data(end+1) = (median_motion_fr_VT(clust_i) - median_motion_fr_V(clust_i))...
+        / (median_motion_fr_VT(clust_i) + median_motion_fr_V(clust_i));
+    
+    if direction(clust_i) ~= 0
+        if direction_pupil(clust_i) == 1
+            scatter(2, modulation_index_no_saccades(clust_i), scatterball_size(3), 'red', 'o');
+        elseif direction_pupil(clust_i) == -1
+            scatter(2, modulation_index_no_saccades(clust_i), scatterball_size(3), 'blue', 'o');
+        else 
+            scatter(2, modulation_index_no_saccades(clust_i), scatterball_size(3), 'black', 'o');
+        end
+
+        if direction(clust_i) == 1
+            scatter(1, modulation_index_all_data(clust_i), scatterball_size(3), 'red', 'o');  
+        elseif direction(clust_i) == -1
+            scatter(1, modulation_index_all_data(clust_i), scatterball_size(3), 'blue', 'o');
+        end
+        plot([1 2], [modulation_index_all_data(clust_i), modulation_index_no_saccades(clust_i)], 'black');
+    end
+end
+xlim([0 3]);
+ylim([-1.2 1.2]);
+title('MI all data / no saccades');
+
+only_responsive = direction ~= 0;
+avg_mi_all_data = nanmean(modulation_index_all_data(only_responsive))
+std_mi_all_data = nanstd(modulation_index_all_data(only_responsive))
+avg_mi_no_saccades  = nanmean(modulation_index_no_saccades(only_responsive))
+std_mi_no_saccades  = nanstd(modulation_index_no_saccades(only_responsive))
+[p] = signrank(modulation_index_all_data(only_responsive), modulation_index_no_saccades(only_responsive))
+
+
+figure(6);
+
+hold on;
+modulation_index_no_body_ME = [];
+modulation_index_all_data = [];
+
+for clust_i = 1 : 39
+    modulation_index_no_body_ME(end+1) = (median_motion_fr_VT_ME(clust_i) - median_motion_fr_V_ME(clust_i))...
+        / (median_motion_fr_VT_ME(clust_i) + median_motion_fr_V_ME(clust_i));
+    
+    modulation_index_all_data(end+1) = (median_motion_fr_VT(clust_i) - median_motion_fr_V(clust_i))...
+        / (median_motion_fr_VT(clust_i) + median_motion_fr_V(clust_i));
+    
+    if direction(clust_i) ~= 0
+        if direction_ME(clust_i) == 1
+            scatter(2, modulation_index_no_body_ME(clust_i), scatterball_size(3), 'red', 'o');
+        elseif direction_ME(clust_i) == -1
+            scatter(2, modulation_index_no_body_ME(clust_i), scatterball_size(3), 'blue', 'o');
+        else 
+            scatter(2, modulation_index_no_body_ME(clust_i), scatterball_size(3), 'black', 'o');
+        end
+
+        if direction(clust_i) == 1
+            scatter(1, modulation_index_all_data(clust_i), scatterball_size(3), 'red', 'o');  
+        elseif direction(clust_i) == -1
+            scatter(1, modulation_index_all_data(clust_i), scatterball_size(3), 'blue', 'o');
+        end
+        plot([1 2], [modulation_index_all_data(clust_i), modulation_index_no_body_ME(clust_i)], 'black');
+    end
+end
+xlim([0 3]);
+ylim([-1.2 1.2]);
+title('MI all data / no body ME');
+
+only_responsive = direction ~= 0;
+avg_mi_all_data = nanmean(modulation_index_all_data(only_responsive))
+std_mi_all_data = nanstd(modulation_index_all_data(only_responsive))
+avg_mi_no_body_ME  = nanmean(modulation_index_no_body_ME(only_responsive))
+std_mi_no_body_ME  = nanstd(modulation_index_no_body_ME(only_responsive))
+[p] = signrank(modulation_index_all_data(only_responsive), modulation_index_no_body_ME(only_responsive))
+
+
 
 
 
