@@ -3,11 +3,6 @@ close all;
 experiment_groups           = 'visual_flow';
 trial_types                 = {{'VT_RVT', 'VT_RV'}, {'V_RVT', 'V_RV'}};
 
-
-% bin_num = 4;
-% bin_size = 100 / bin_num;
-
-
 ctl                         = RC2Analysis();
 probe_ids                   = ctl.get_probe_ids(experiment_groups);
 
@@ -49,17 +44,12 @@ for probe_i = 1 : length(probe_ids)
     % Set the threshold
     pupil_diameter_motion_all(pupil_diameter_motion_all==0) = NaN;
     
-    % four parts thresholds for plotting
-%     thresholds = zeros(length(trial_types), bin_num);
-%     for type_i = 1 : length(trial_types)
-%         for bin = 1 : bin_num
-%             thresholds(type_i, bin) = prctile(pupil_diameter_motion_all(type_i, :), bin_size * bin);
-%         end
-%     end
-    
     edges = linspace(0, 100, 1000);
     
-    [mask_threshold, smooth_counts1, smooth_counts2] = find_mask_threshold(pupil_diameter_motion_all, edges);
+    [mask_threshold, smooth_counts1, smooth_counts2] = find_mask_threshold(...
+        pupil_diameter_motion_all(1, :), ...
+        pupil_diameter_motion_all(2, :), ...
+        edges);
     
     figure(probe_i);
     hold on;
@@ -85,9 +75,6 @@ for probe_i = 1 : length(probe_ids)
 
     pd_doubled_masking = zeros(length(trials), 300000);
     
-%     fr_per_diameter = NaN(length(trial_types), length(clusters), bin_num, 300000);
-%     fr_per_diameter_mean = zeros(length(trial_types), length(clusters), bin_num);
-
     for type_i = 1 : length(trial_types)
         % Get the distribution of pupil diameter
         trials = data.get_trials_with_trial_group_label(trial_types{type_i});
@@ -190,34 +177,3 @@ sem_mi  = nanstd(modulation_index(only_responsive_no_mask)) / sqrt(39)
 
 
 
-
-
-
-function [mask_threshold, smooth_counts1, smooth_counts2] = find_mask_threshold(pupil_diameter_motion_all, edges)
-    % Inputs:
-    %   pupil_diameter_motion_all: 2xN matrix where each row is a time series
-    %   edges: bin edges for the histogram
-    
-    % Compute histograms
-    counts1 = histcounts(pupil_diameter_motion_all(1, :), edges);
-    counts2 = histcounts(pupil_diameter_motion_all(2, :), edges);
-
-    % Smooth the histograms
-    smooth_counts1 = smooth(counts1, 30); % Adjust the window size for smoothness
-    smooth_counts2 = smooth(counts2, 30);
-    
-    % Find the peak of the second distribution
-    [~, peak2_idx] = max(smooth_counts2);
-
-    % Find the first intersection point after the peak of the second distribution
-    for i = peak2_idx:length(edges)-1
-        if smooth_counts1(i) > smooth_counts2(i)
-            mask_threshold = edges(i);
-            return;
-        end
-    end
-
-    % If no intersection is found, set threshold to last bin edge
-    mask_threshold = edges(length(edges));
-    disp('No intersection found after the peak of the second distribution.');
-end
