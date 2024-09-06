@@ -1,5 +1,5 @@
 
-function [mask_threshold, smooth_counts1, smooth_counts2] = find_mask_threshold(motion, stationary, edges)
+function [mask_threshold, smooth_counts1, smooth_counts2] = find_mask_threshold(motion, stationary, edges, smooth_bins)
     % Inputs:
     %   motion:
     %   stationary:
@@ -10,8 +10,8 @@ function [mask_threshold, smooth_counts1, smooth_counts2] = find_mask_threshold(
     counts2 = histcounts(stationary, edges);
     
     % Smooth the histograms
-    smooth_counts1 = smooth(counts1, 100); 
-    smooth_counts2 = smooth(counts2, 100);
+    smooth_counts1 = smooth(counts1, smooth_bins); 
+    smooth_counts2 = smooth(counts2, smooth_bins);
     
     % Find the peaks of the distributions
     [~, peak1_idx] = max(smooth_counts1);
