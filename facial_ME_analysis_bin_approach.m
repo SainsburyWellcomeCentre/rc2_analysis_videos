@@ -3,14 +3,6 @@ close all;
 experiment_groups           = 'visual_flow';
 trial_types                 = {{'VT_RVT', 'VT_RV'}, {'V_RVT', 'V_RV'}};
 
-% Thresholds for unity plot, make masks on VF + T
-custom_thresholds = [1.0450 1.5855 0.8648 0.9369];
-
-% Thresholds for the "bins plot"
-bin_num = 20;
-bin_size = 100 / bin_num;
-
-
 ctl                         = RC2Analysis();
 probe_ids                   = ctl.get_probe_ids(experiment_groups);
 
@@ -51,17 +43,13 @@ for probe_i = 1 : length(probe_ids)
     
     % Set the threshold
     facial_ME_motion_all(facial_ME_motion_all==0) = NaN;
-    mask_threshold = custom_thresholds(probe_i);
-    
-    % four parts thresholds for plotting
-    thresholds = zeros(length(trial_types), bin_num);
-    for type_i = 1 : length(trial_types)
-        for bin = 1 : bin_num
-            thresholds(type_i, bin) = prctile(facial_ME_motion_all(type_i, :), bin_size * bin);
-        end
-    end
+%     mask_threshold = custom_thresholds(probe_i);
+    [mask_threshold, smooth_counts1, smooth_counts2] = find_mask_threshold(...
+        facial_ME_motion_all(1, :), ...
+        facial_ME_motion_all(2, :), ...
+        edges, 5);
 
-    edges = linspace(0,12,1000);
+    edges = linspace(0,10,1000);
     figure(probe_i);
     hold on;
     title(probe_ids(probe_i));
@@ -69,9 +57,17 @@ for probe_i = 1 : length(probe_ids)
     histogram(facial_ME_motion_all(1, :), edges);
     hold on;
     histogram(facial_ME_motion_all(2, :), edges);
-    xlabel('Pupil diameter (pixel)');
+    xlabel('Facial ME');
     ylabel('Counts');
     xline(mask_threshold)
+    
+    subplot(1, 2, 2);
+    hold on
+    plot(smooth_counts1)
+    plot(smooth_counts2)
+    xlabel('Facial ME');
+    ylabel('Smoothed distribution');
+%     xline(mask_threshold * 100)
     
     mean_spikes = zeros(length(trial_types), length(trials), length(clusters));
     mean_spikes_no_mask = zeros(length(trial_types), length(trials), length(clusters));
@@ -102,14 +98,6 @@ for probe_i = 1 : length(probe_ids)
                 mean_spikes(type_i, trial_i, clust_i) = nanmean(fr(mask));
                 mean_spikes_no_mask(type_i, trial_i, clust_i) = nanmean(fr(original_motion_mask));
                 
-%                 facial_ME_masked_only_motion = face_motion_energy(original_motion_mask);
-%                 fr_masked_only_motion = fr(original_motion_mask);
-%                 for point = 1 : length(fr_masked_only_motion)
-%                    if ~isnan(facial_ME_masked_only_motion(point))
-%                        bins = find((thresholds(type_i, :) >= facial_ME_masked_only_motion(point)));
-%                        fr_per_facial_ME(type_i, clust_i, bins(1), point) = fr_masked_only_motion(point);
-%                    end
-%                 end
             end
         end
     end
@@ -127,27 +115,7 @@ for probe_i = 1 : length(probe_ids)
         median_VT_no_mask(end+1) = nanmedian(mean_VT_no_mask);
         median_V_no_mask(end+1) = nanmedian(mean_V_no_mask);
         [~, ~, ~, direction_no_mask(end+1)] = compare_groups_with_signrank(mean_V_no_mask, mean_VT_no_mask);
-        
-%         for type_i = 1 : length(trial_types)
-%             for bin = 1 : bin_num
-%                 fr_per_facial_ME_mean(type_i, clust_i, bin) = nanmean(fr_per_facial_ME(type_i, clust_i, bin, :));
-%             end
-%         end
     end
-%     subplot(1, 2, 2);
-%     hold on;
-%     for bin = 1 : bin_num
-%         scatter(thresholds(1, bin), fr_per_facial_ME_mean(1, :, bin), 'blue');
-%         scatter(thresholds(2, bin), fr_per_facial_ME_mean(2, :, bin), 'red');
-%     end
-%     
-%     for clust_i = 1 : length(clusters)
-%         for bin = 1 : bin_num
-%             VT_fr_per_bin(clust_idx, bin) = fr_per_facial_ME_mean(1, clust_i, bin);
-%             V_fr_per_bin(clust_idx, bin) = fr_per_facial_ME_mean(2, clust_i, bin);
-%         end
-%         clust_idx = clust_idx + 1;
-%     end
 end
 
 
@@ -164,17 +132,6 @@ fmt.colour_by       = 'significance';
 
 unity_plot_plot(h_ax, median_V, median_VT, direction, fmt);
 
-
-% 
-% figure(6);
-% hold on;
-% for bin = 1 : bin_num
-%     errorbar(bin, mean(VT_fr_per_bin(:, bin)), std(VT_fr_per_bin(:, bin)),'-bo','MarkerSize',10,...
-%     'MarkerEdgeColor','b','MarkerFaceColor','b');
-%     errorbar(bin, mean(V_fr_per_bin(:, bin)), std(V_fr_per_bin(:, bin)), '-ro','MarkerSize',10,...
-%     'MarkerEdgeColor','r','MarkerFaceColor','r');
-% end
-% xlim([0 21]);
 
 
 figure(7);
@@ -209,8 +166,11 @@ ylim([-1.2 1.2]);
 only_responsive_no_mask = direction_no_mask ~= 0;
 avg_mi_no_mask = mean(modulation_index_no_mask(only_responsive_no_mask))
 std_mi_no_mask = std(modulation_index_no_mask(only_responsive_no_mask))
+sem_mi_no_mask = std(modulation_index_no_mask(only_responsive_no_mask)) / sqrt(39)
+
 avg_mi  = mean(modulation_index(only_responsive_no_mask))
 std_mi  = std(modulation_index(only_responsive_no_mask))
+sem_mi  = std(modulation_index(only_responsive_no_mask)) / sqrt(39)
 [p] = signrank(modulation_index_no_mask(only_responsive_no_mask), modulation_index(only_responsive_no_mask))
 
 [p_VT,tbl_VT,stats_VT] = anova1(VT_fr_per_bin);
