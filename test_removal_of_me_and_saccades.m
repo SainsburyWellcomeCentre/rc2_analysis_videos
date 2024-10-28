@@ -492,8 +492,12 @@ title('MI all data / no saccades');
 only_responsive = direction ~= 0;
 avg_mi_all_data = nanmean(modulation_index_all_data(only_responsive))
 std_mi_all_data = nanstd(modulation_index_all_data(only_responsive))
+sem_mi_all_data = nanstd(modulation_index_all_data(only_responsive)) / sqrt(39)
+
 avg_mi_no_saccades  = nanmean(modulation_index_no_saccades(only_responsive))
 std_mi_no_saccades  = nanstd(modulation_index_no_saccades(only_responsive))
+sem_mi_no_saccades  = nanstd(modulation_index_no_saccades(only_responsive)) / sqrt(39)
+
 [p] = signrank(modulation_index_all_data(only_responsive), modulation_index_no_saccades(only_responsive))
 
 
@@ -534,8 +538,12 @@ title('MI all data / no body ME');
 only_responsive = direction ~= 0;
 avg_mi_all_data = nanmean(modulation_index_all_data(only_responsive))
 std_mi_all_data = nanstd(modulation_index_all_data(only_responsive))
+sem_mi_all_data = nanstd(modulation_index_all_data(only_responsive))  / sqrt(39)
+
 avg_mi_no_body_ME  = nanmean(modulation_index_no_body_ME(only_responsive))
 std_mi_no_body_ME  = nanstd(modulation_index_no_body_ME(only_responsive))
+sem_mi_no_body_ME  = nanstd(modulation_index_no_body_ME(only_responsive)) / sqrt(39)
+
 [p] = signrank(modulation_index_all_data(only_responsive), modulation_index_no_body_ME(only_responsive))
 
 
