@@ -1,4 +1,4 @@
-% analyze firing rate around saccades
+% Make plots to visualize the changes in firing rate around sacades
 
 session_ids = {'CAA-1110262_rec1_001', ...
                'CAA-1110264_rec1_001', ...
@@ -60,8 +60,7 @@ for ii = 1 : length(session_ids)
         fr = [];
         for clust_i = 1 : length(clusters)
             
-            raster = RasterData(clusters(clust_i));
-            raster.limits = [-0.5, 0.5];
+            raster = RasterData(clusters(clust_i), [-0.5, 0.5]);
             raster.trigger_times = session.camera_t(saccade_frames);
             
             % get firing rate average
@@ -102,11 +101,7 @@ for ii = 1 : length(session_ids)
         
         these_trials = trials(associated_trial(saccades_in_trials));
         these_times = raster.trigger_times(saccades_in_trials);
-%         [motion_traces, motion_timebase] = data.get_traces_around_times(these_trials, these_times, [-0.2, 0.2], 10e3);
-        
-%         motion_avg = mean(motion_traces, 2);
-%         motion_sem = std(motion_traces, [], 2) ./ sqrt(sum(~isnan(motion_traces), 2));
-        
+ 
         figure;
         
         % plot saccade average
@@ -131,17 +126,6 @@ for ii = 1 : length(session_ids)
         line(h_ax, [0, 0], get(h_ax, 'ylim'), 'color', 'k');
         ylabel('Hz');
         title('Firing rate');
-        
-        % plot motion
-%         h_ax = subplot(3, 1, 3);
-%         hold on;
-%         plot(h_ax, motion_timebase, motion_avg, 'color', col)
-%         plot(h_ax, motion_timebase, motion_avg + motion_sem, 'color', sd_col)
-%         plot(h_ax, motion_timebase, motion_avg - motion_sem, 'color', sd_col)
-%         line(h_ax, [0, 0], get(h_ax, 'ylim'), 'color', 'k');
-%         title('Motion');
-%         ylabel('cm/s');
-%         xlabel('Time (s)');
         
         FigureTitle(gcf, sprintf('%s', session_ids{ii}));
     end
