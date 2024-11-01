@@ -1,4 +1,4 @@
-% extract_saccade_frames.m
+% extract_pupil_diameter.m
 %
 % Description:
 %   This script extracts frame numbers on which saccades (rapid eye movements) occur 

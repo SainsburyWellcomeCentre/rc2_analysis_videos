@@ -1,4 +1,4 @@
-% analyze_modulation_index.m
+% analyze_pupil_data.m
 %
 % Description:
 %   This script analyzes pupil diameter and firing rates in two experimental 
