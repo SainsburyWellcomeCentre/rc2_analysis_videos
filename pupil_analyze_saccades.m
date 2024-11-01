@@ -1,4 +1,34 @@
-% Make plots to visualize the changes in firing rate around sacades
+% population_saccade_firing_rate_analysis.m
+%
+% Description:
+%   This script analyzes and visualizes changes in firing rates of neuron 
+%   populations around saccades (rapid eye movements) for each probe and session 
+%   in a set of recordings. For each session, it extracts saccade events 
+%   (categorized as nasal or temporal) and calculates the firing rate response 
+%   of a population of neurons at the onset of each saccade. 
+%
+%   The script produces plots showing:
+%       1. Average pupil position around each saccade (nasal or temporal).
+%       2. Population-level firing rate changes relative to saccade onset.
+%   The results provide insight into population-level neuronal responses to 
+%   saccadic movements, highlighting potential directional dependencies.
+%
+% Inputs:
+%   - session_ids (cell array of strings): List of session identifiers for the 
+%     recordings to analyze.
+%   - camera_fs (numeric): Sampling rate of the camera, used to align data.
+%   - frames_around_event (numeric array): Frames to examine around each saccade.
+%   - baseline_frames (numeric array): Frames used to compute the baseline pupil 
+%     position around each event.
+%
+% Outputs:
+%   - Plots for each session showing:
+%       - Pupil position averaged around saccades.
+%       - Firing rate averaged around saccade onset.
+%
+% Usage:
+%   Update the session IDs as needed, and run the script to generate visualizations 
+%   for population-level firing rate responses around saccades.
 
 session_ids = {'CAA-1110262_rec1_001', ...
                'CAA-1110264_rec1_001', ...
