@@ -1,7 +1,30 @@
-% extracts frame numbers on which saccades occur from DeepLabCut tracks
+% pupil_extract_saccade_frames.m
 %
-%   if `save_csv` is true then a csv will be saved containing the frame
-%   numbers of the saccades and the direction of the saccade.
+% Description:
+%   This script identifies frames in which saccades occur using DeepLabCut 
+%   pupil-tracking data, distinguishing nasal and temporal movements. Saccades 
+%   are detected based on the central difference of the pupil position and 
+%   deviations from the mean. Optionally, the script saves the detected saccade 
+%   frames and directions to a CSV file.
+%
+% Inputs:
+%   - session_id (string): Unique identifier for the recording session.
+%   - fname (string): Path to the DeepLabCut (DLC) tracked pupil data file.
+%   - lh_threshold (numeric): Likelihood threshold for filtering low-confidence data.
+%   - fs (numeric): Sampling rate of the camera in Hz.
+%   - n_sds (numeric): Number of standard deviations for saccade detection.
+%   - min_event_interval (numeric): Minimum interval (seconds) to avoid detecting 
+%     events occurring too close in time.
+%   - save_csv (boolean): Flag to save the detected saccades in a CSV file.
+%
+% Outputs:
+%   - Figures showing pupil position, saccade events, and average pupil position 
+%     around each saccade.
+%   - (Optional) CSV file containing the frame numbers and direction (nasal/temporal) 
+%     of each saccade event.
+%
+% Usage:
+%   Set the parameters and run the script. Ensure the DLC data file is accessible.
 
 session_id          = 'CAA-1110264_rec1_001';
 fname               = ctl.file.camera0_dlc_pupil_slow(session_id);
