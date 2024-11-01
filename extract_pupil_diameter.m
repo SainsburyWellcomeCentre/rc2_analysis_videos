@@ -1,9 +1,8 @@
 % extract_pupil_diameter.m
 %
 % Description:
-%   This script extracts frame numbers on which saccades (rapid eye movements) occur 
-%   from DeepLabCut (DLC) tracked pupil data. It calculates the pupil position and 
-%   diameter over time and, if `save_csv` is set to true, saves the results in a .csv file.
+%   This script calculates the pupil position and diameter over time and, if `save_csv` 
+%   is set to true, saves the results in a .csv file.
 %
 % Inputs:
 %   - session_id (string): Unique identifier for the recording session.
