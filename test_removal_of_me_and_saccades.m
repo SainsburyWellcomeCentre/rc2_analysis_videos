@@ -1,29 +1,48 @@
-% Produce unity plots with no change, with removal of high motion energy
-% periods (for repeat trials) and with removal of periods just after
-% movements of the pupil.
-
-
-% How is this analysis done?
+% motion_energy_and_saccade_analysis.m
 %
-% BODY MOTION ENERGY
-% 1. For each VT and V trial, the distribution of motion energy during
-% running in the original trial (i.e. the trial from which the replay comes from) 
-% is calculated. We store a threshold motion value corresponding to
-% a given percentile.
-% 2. This treshold is applied to the body motion energy of this trial in
-% the stationary and motion periods. Only time bins in which the ME was
-% under the threshold are taken.
-% 3. From this subset of time bins, the fr is extracted and the mean value
-% across the trial is collected for every cluster. Then the median is
-% calculated across trials. 
+% Description:
+%   This script analyzes firing rate changes in neuron populations across
+%   different experimental conditions by producing unity plots that reflect 
+%   responses under three scenarios:
+%       1. Original data, including all motion events.
+%       2. Data with high-motion energy periods removed, particularly in replayed 
+%          trials to isolate periods of low motion energy.
+%       3. Data with periods just after pupil saccades removed, to examine 
+%          post-saccadic effects on neural activity.
 %
-% SACCADES REMOVAL
-% 1. for each session, the precomputed saccades frame table is loaded.
-% 2. for each trial, the time bins in which the saccades happen are removed
-% in a time window defined as duration_to_remove. In this way a mask is
-% generated.
-% 3. these mask is then applied to the fr, then the mean through a trial and
-% median across trials is calculated for each cluster.
+% Analysis Workflow:
+%   BODY MOTION ENERGY
+%       1. For each VT (visual task) and V (visual only) trial, the distribution 
+%          of motion energy during running periods of the original trial (i.e., 
+%          the trial from which the replay originates) is calculated.
+%       2. A threshold motion value corresponding to a specific percentile 
+%          is applied to body motion energy during both stationary and motion 
+%          periods, retaining only time bins where motion energy falls below 
+%          this threshold.
+%       3. The firing rate (FR) is calculated from this subset of time bins 
+%          and averaged across the trial for each cluster, then the median is 
+%          calculated across trials.
+%
+%   SACCADE REMOVAL
+%       1. For each session, a precomputed table of saccade frames is loaded.
+%       2. For each trial, a time window is defined post-saccade using 
+%          `duration_to_remove`. Time bins within this window are removed to 
+%          create a saccade-exclusion mask.
+%       3. The mask is applied to the firing rate data, and the mean across 
+%          the trial and the median across trials are calculated for each cluster.
+%
+% Outputs:
+%   - Unity plots comparing firing rates across stationary and motion periods 
+%     in each scenario: original, high-motion energy excluded, and post-saccade 
+%     periods removed.
+%   - Summary statistics on data retention after removing post-saccade periods 
+%     and high-motion energy segments.
+%   - Modulation indices that quantify population responses in each condition.
+%
+% Usage:
+%   Set the `experiment_groups` and `trial_types` variables as needed, and run 
+%   the script to analyze firing rate distributions across conditions, comparing 
+%   changes under different data exclusions.
 
 close all;
 
