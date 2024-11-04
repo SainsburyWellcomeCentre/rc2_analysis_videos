@@ -1,3 +1,36 @@
+% analyze_high_body_motion_energy_periods.m
+%
+% Description:
+%   This script evaluates neuron firing rates during periods of high motion 
+%   energy within specified experiment groups and trial types. It compares 
+%   firing rates across motion and stationary periods, with and without 
+%   high-motion energy frames, to assess the impact of motion energy on neural 
+%   activity.
+%
+% Analysis Workflow:
+%   1. For each trial, the camera motion energy is computed during motion 
+%      and stationary periods.
+%   2. The script calculates a motion energy threshold based on the lowest 
+%      5th percentile of motion energy values during treadmill motion periods 
+%      in the original trial.
+%   3. This threshold is then applied to the replayed trials to mask frames 
+%      with high-motion energy. Firing rates are calculated both with and 
+%      without high-motion frames for both motion and stationary periods.
+%
+% Outputs:
+%   - Scatter plots showing the percentage of data removed due to high motion 
+%     energy per mouse for motion and stationary periods.
+%   - Histograms indicating the percentage of data removed across all trials 
+%     for both motion and stationary periods.
+%   - Delta firing rate plots showing the difference in firing rates between 
+%     original and high-motion removed conditions.
+%   - Summary statistics (sign-test and signrank p-values) comparing firing 
+%     rates across conditions.
+%
+% Usage:
+%   Define `experiment_groups`, `trial_types`, and other parameters as needed. 
+%   Running the script generates plots and statistical summaries saved to the 
+%   specified directory if `save_on` is set to true.
 
 
 %%
