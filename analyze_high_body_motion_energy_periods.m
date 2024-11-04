@@ -1,7 +1,4 @@
-%% Check firing rates during periods of high motion energy
-%
-%   compares firing rate during motion and stationary periods with and
-%   without periods of high motion energy
+
 
 %%
 experiment_groups   = {'darkness', 'mismatch_darkness_oct21', 'mismatch_jul21'};
