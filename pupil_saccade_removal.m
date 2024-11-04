@@ -1,7 +1,37 @@
-%% Check firing rates just after saccade removal
+% analyze_firing_rate_post_saccade_removal.m
 %
-%   compares firing rate during motion and stationary periods with and
-%   without the period just after saccade
+% Description:
+%   This script analyzes firing rates of neuron populations during motion 
+%   and stationary periods, comparing conditions with and without a period 
+%   just after saccades. It uses saccade events extracted from multiple 
+%   sessions, removing a specified duration after each saccade event from 
+%   the data. The script calculates firing rates with and without the 
+%   post-saccade period, and visualizes treadmill speed with saccade 
+%   occurrences.
+%
+%   For each session and trial type, the script performs the following:
+%       1. Visualizes treadmill speed with superimposed saccade masks, 
+%          highlighting post-saccade removal periods.
+%       2. Calculates and compares firing rates during motion and stationary 
+%          periods with and without the post-saccade period.
+%       3. Prints statistical summaries comparing firing rates across conditions.
+%
+% Inputs:
+%   - experiment_groups (string): Specifies the group of experiments to analyze.
+%   - trial_types (cell array): Specifies trial types to analyze within each 
+%     experiment group.
+%   - duration_to_remove (numeric): Amount of time (in seconds) to remove 
+%     after each saccade event.
+%
+% Outputs:
+%   - Figures showing treadmill speed and saccade events for each trial, with 
+%     the post-saccade removal period highlighted.
+%   - Printed statistics comparing firing rates with and without post-saccade removal.
+%
+% Usage:
+%   Update the `experiment_groups` and `trial_types` as needed, then run the 
+%   script to analyze the effect of post-saccade periods on firing rates.
+
 
 
 %%
