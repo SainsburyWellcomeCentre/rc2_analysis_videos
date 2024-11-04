@@ -1,4 +1,4 @@
-% motion_energy_and_saccade_analysis.m
+% body_motion_energy_and_saccade_analysis.m
 %
 % Description:
 %   This script analyzes firing rate changes in neuron populations across
