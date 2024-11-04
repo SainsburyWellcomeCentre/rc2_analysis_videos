@@ -1,5 +1,5 @@
-% Choose the frame you would like to use to visualize face and body
-% movement
+
+
 
 selected_frame_number = [60 1230];
 for i = 0:1
