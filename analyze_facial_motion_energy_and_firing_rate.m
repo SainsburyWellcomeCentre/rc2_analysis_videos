@@ -1,4 +1,44 @@
-
+% analyze_facial_motion_energy_and_firing_rate.m
+%
+% Description:
+%   This script investigates the relationship between facial motion energy 
+%   (ME) and neuronal firing rates across two conditions: with and without 
+%   a facial motion energy mask. Using data from multiple probes and trial 
+%   types, it identifies periods of high and low facial motion energy and 
+%   assesses the corresponding firing rate changes at the population level.
+%
+% Analysis Workflow:
+%   1. **Facial Motion Energy Distribution**:
+%      - For each trial type and session, the facial motion energy (ME) 
+%        distribution is extracted during motion periods in original trials.
+%      - A threshold is set to filter out high-motion energy periods.
+%
+%   2. **Firing Rate Analysis**:
+%      - Using the thresholded ME data, the script calculates mean firing rates 
+%        during periods with and without the facial motion mask across clusters.
+%      - This results in two sets of firing rates for each trial type, 
+%        with and without ME filtering.
+%
+%   3. **Statistical Comparisons and Plots**:
+%      - For each cluster, the median firing rate across trials is compared 
+%        between the VT and V conditions, both with and without the ME mask.
+%      - Modulation indices are computed to capture differences in population-level 
+%        responses, and the script produces unity plots to visualize firing rate 
+%        changes with and without ME filtering.
+%      - Statistical tests (signrank and ANOVA) evaluate significance of differences.
+%
+% Outputs:
+%   - Unity plots comparing median firing rates across conditions, both with 
+%     and without the facial motion energy mask.
+%   - Scatter plots of modulation indices for each condition, highlighting 
+%     direction of change.
+%   - Summary statistics for modulation indices, including mean, standard deviation, 
+%     and standard error, alongside significance tests for differences in firing rates.
+%
+% Usage:
+%   Specify the `experiment_groups` and `trial_types` variables and run the 
+%   script to analyze and visualize the effects of facial motion energy on 
+%   neuronal firing rates across conditions.
 
 
 close all;
