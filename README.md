@@ -26,7 +26,7 @@ The following scripts assist in extracting essential data for the main analyses:
 
 ## Motion Energy Computation
 
-Body and facial motion energy were precomputed using the [`rc2_analysis`](https://github.com/SainsburyWellcomeCentre/rc2_analysis) (see [`CameraProcessingHelper`](https://github.com/SainsburyWellcomeCentre/rc2_analysis/blob/8bea4a318d5af123b6086fa37a81fd2dcc9064ef/lib/classes/preprocess/CameraProcessingHelper.m)).
+Body and facial motion energy were precomputed using the [`rc2_analysis`](https://github.com/SainsburyWellcomeCentre/rc2_analysis) (see [`CameraProcessingHelper`](https://github.com/SainsburyWellcomeCentre/rc2_analysis/blob/8bea4a318d5af123b6086fa37a81fd2dcc9064ef/lib/classes/preprocess/CameraProcessingHelper.m)) and [runningmouse](https://github.com/neuroinformatics-unit/runningmouse).
 
 ## Data Exploration Scripts
 
