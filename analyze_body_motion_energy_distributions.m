@@ -1,3 +1,37 @@
+% analyze_body_motion_energy_distributions.m
+%
+% Description:
+%   This script compares the distributions of motion energy between two trial 
+%   types, RVT and RV, across multiple probe recordings. For each probe, it 
+%   aggregates motion energy values during periods of active motion, enabling 
+%   comparison of the motion profiles between different conditions.
+%
+% Analysis Workflow:
+%   1. **Data Loading and Selection**:
+%      - Loads motion energy data for each probe across two trial types: 
+%        RVT (and RVT with gain up) and RV (and RV with gain up).
+%      - Extracts motion energy values during treadmill motion periods within 
+%        each trial type.
+%
+%   2. **Distribution Comparison**:
+%      - Aggregates motion energy data across all trials within each trial type 
+%        for each probe.
+%      - Plots histograms of motion energy distributions for RVT and RV trial 
+%        types side-by-side, enabling visual comparison.
+%      - Computes and displays the median motion energy for each trial type 
+%        within each probe.
+%
+% Outputs:
+%   - Histograms for each probe, comparing the motion energy distributions 
+%     for RVT and RV trial types.
+%   - Printed summary statistics showing the median motion energy for RVT and 
+%     RV trials per probe, providing a concise numerical comparison.
+%
+% Usage:
+%   Specify the `trial_types` and `probe_ids` variables as needed, then run 
+%   the script to analyze and visualize motion energy distributions for each 
+%   probe across conditions.
+
 
 % trial_types                 = {'RVT_gain_up', 'RV_gain_up'}; %{'RVT', 'RV'};
 trial_types                 = {{'RVT', 'RVT_gain_up'}, {'RV', 'RV_gain_up'}};
