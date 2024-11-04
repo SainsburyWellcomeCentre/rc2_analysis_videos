@@ -1,4 +1,30 @@
-
+% visualize_face_and_body_movement.m
+%
+% Description:
+%   This script selects specific frames from video recordings of face and body 
+%   movements to visualize motion. It extracts two consecutive frames from each 
+%   specified point in the video to highlight changes in pixel intensity, 
+%   allowing for a clear view of movement areas in face and body recordings.
+%
+% Workflow:
+%   1. **Video Loading and Frame Selection**:
+%      - Loads two video files representing face (`camera0`) and body (`camera1`) 
+%        movement recordings.
+%      - For each video, selects a specific frame based on `selected_frame_number`.
+%      - Displays the selected frame with annotations of the current time and frame 
+%        number.
+%
+%   2. **Motion Visualization**:
+%      - Captures two consecutive frames and calculates the pixel-wise difference, 
+%        emphasizing regions of movement.
+%      - Displays the difference between frames as a heatmap to visualize movement 
+%        intensity.
+%      - Uses a custom color map to highlight movement areas.
+%
+% Usage:
+%   Specify `selected_frame_number` for the frames to visualize, and update 
+%   `path_to_example_videos` with the paths to the video files. Run the script to 
+%   generate visualizations showing regions of face and body movement.
 
 
 selected_frame_number = [60 1230];
